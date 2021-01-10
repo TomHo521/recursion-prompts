@@ -87,7 +87,11 @@ var sumBelow = function(n) {
 // 6. Get the integers within a range (x, y).
 // range(2,9); // [3,4,5,6,7,8]
 var range = function(x, y) {
-
+/*
+   This question took me stupid amounts of time.
+   Apparently array.push(); returns the new length of the array!!!
+    GG.  I was returning a number instead of an array the entire time?!?
+*/
     
     if ((x === y) || ((x - y) === 1) || ((y - x) === 1)) {
 
@@ -120,10 +124,18 @@ var exponent = function(base, exp) {
 
     if (exp===0) 
       return 1;
+
     else if (exp < 0) {
 
       //return (exponent(base, exp + 1) * (1/base).toPrecision(5)).toPrecision(4);
       return (1 / exponent(base, exp * -1));
+    }
+    else if ((exp % 2 === 0) && (base > 0)) {
+
+        var n = exponent(base, exp / 2);
+
+        return n * n;
+
     }
     else {
       return exponent(base, exp - 1) * base;
@@ -196,16 +208,64 @@ var palindrome = function(string) {
 // modulo(17,5) // 2
 // modulo(22,6) // 4
 var modulo = function(x, y) {
+
+  if (y === 0)
+    return NaN;
+
+  if (x === y)
+    return 0;
+
+  if (x < 0)
+    return modulo(x + y, y); 
+
+  if (x < y)
+    return x;
+    
+  return modulo(x - y, y);   
 };
 
 // 12. Write a function that multiplies two numbers without using the * operator or
 // Math methods.
 var multiply = function(x, y) {
+
+  if ((y === 0) || (x === 0))
+    return 0;
+
+  if ((y === -1) && (x === -1))
+    return 1;
+
+  if ((y < 0) && (x < 0)) {
+    //flip sign code
+    var newx = (x - x - x);
+    var newy = (y - y - y);
+
+    return multiply(newx, newy);
+  }
+
+  if (y < 0)
+    return y + multiply(x - 1, y);
+
+  return x + multiply(x, y - 1);   
+
 };
 
 // 13. Write a function that divides two numbers without using the / operator or
 // Math methods to arrive at an approximate quotient (ignore decimal endings).
 var divide = function(x, y) {
+
+  if (y === 0)
+    return NaN;
+
+  if (x === y)
+    return 0;
+
+  if (x < 0)
+    return divide(x + y, y); 
+
+  if (x < y)
+    return x;
+    
+  return divide(x - y, y);   
 };
 
 // 14. Find the greatest common divisor (gcd) of two positive numbers. The GCD of two
@@ -262,6 +322,27 @@ var rMap = function(array, callback) {
 // countKeysInObj(obj, 'r') // 1
 // countKeysInObj(obj, 'e') // 2
 var countKeysInObj = function(obj, key) {
+
+  if ((typeof obj === 'object') & (obj !== null)) {
+
+    var arrayOfKeys = Object.keys(obj);
+    if ((arrayOfKeys.length === 0) || (arrayOfKeys === undefined)) 
+      return 0;
+    
+    var accumulator = 0;
+
+    for (var x in obj) {
+      accumulator += countKeysInObj(obj[x], key);
+    }
+    if (key in obj) 
+      accumulator++;
+
+    return accumulator;
+  }
+  else 
+    return 0;
+  
+
 };
 
 // 23. Write a function that counts the number of times a value occurs in an object.
@@ -273,7 +354,7 @@ var countValuesInObj = function(obj, value) {
     /* self note on why i didnt solve this faster
     in deleting the first key from the obj, i was permanenly modifying the object
     what i needed to do was create a copy and recursively call the function with 
-    a copy of the diminishe object.
+    a copy of the diminished object.
     otherwise the deletion will permanetly modify the object
 
     moreover at some point, obj will no longer be an object and worse
@@ -283,9 +364,6 @@ var countValuesInObj = function(obj, value) {
     finally.  the detection of whether or not something is an object for purposes of
     using Object.keys requires accounting for the null condition.
 
-    also see problem 6 where i spent tons of time debugging for the fact that
-    array.push(); returns the new length of the array!!!
-    GG.  I was returning a number instead of an array the entire time?!?
 
     */
 
@@ -325,6 +403,40 @@ var countValuesInObj = function(obj, value) {
 // 24. Find all keys in an object (and nested objects) by a provided name and rename
 // them to a provided new name while preserving the value stored at that key.
 var replaceKeysInObj = function(obj, oldKey, newKey) {
+
+    /* note to self...
+     * so...all my troubles with problems 23, come in handy with problem 24.
+     * previously the bugs I got where I was accidentally modifying the object, come in handy here
+     * where we can simply and recursively pass the object around.
+     */
+
+    if ((typeof obj === 'object') & (obj !== null)) {
+
+        var arrayOfKeys = Object.keys(obj);
+    
+        if ((arrayOfKeys.length === 0) || (arrayOfKeys === undefined)) {
+            
+            return obj;
+
+        } else {
+
+
+            if (oldKey in obj) {
+                obj[newKey] = obj[oldKey];
+                delete obj[oldKey];
+            }
+
+            for (var x in obj) {
+
+                replaceKeysInObj(obj[x], oldKey, newKey);
+            }
+
+            return obj;
+
+        }
+    } 
+
+
 };
 
 // 25. Get the first n Fibonacci numbers. In the Fibonacci sequence, each subsequent
