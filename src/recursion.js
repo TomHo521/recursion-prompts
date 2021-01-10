@@ -73,11 +73,42 @@ var isEven = function(n) {
 // sumBelow(10); // 45
 // sumBelow(7); // 21
 var sumBelow = function(n) {
+
+    if (n === 0) {
+        return 0;
+      } else if (n > 0) {
+          return (n - 1) + sumBelow(n-1);
+      } else if (n < 0) {
+          return (n + 1) + sumBelow(n+1);
+      }
+
 };
 
 // 6. Get the integers within a range (x, y).
 // range(2,9); // [3,4,5,6,7,8]
 var range = function(x, y) {
+
+    
+    if ((x === y) || ((x - y) === 1) || ((y - x) === 1)) {
+
+        baseCaseArray = [];
+        return baseCaseArray;
+    } 
+    else if (y > x) {
+
+       var temp = range(x, y-1);
+       temp.push(y-1);
+       return temp;
+    }
+    else if (x > y) {
+
+        var temp = range(x, y + 1);
+        temp.push(y+1);
+        return temp;
+
+    }
+
+
 };
 
 // 7. Compute the exponent of a number.
@@ -86,6 +117,19 @@ var range = function(x, y) {
 // exponent(4,3); // 64
 // https://www.khanacademy.org/computing/computer-science/algorithms/recursive-algorithms/a/computing-powers-of-a-number
 var exponent = function(base, exp) {
+
+    if (exp===0) 
+      return 1;
+    else if (exp < 0) {
+
+      //return (exponent(base, exp + 1) * (1/base).toPrecision(5)).toPrecision(4);
+      return (1 / exponent(base, exp * -1));
+    }
+    else {
+      return exponent(base, exp - 1) * base;
+    }
+
+
 };
 
 // 8. Determine if a number is a power of two.
@@ -93,14 +137,57 @@ var exponent = function(base, exp) {
 // powerOfTwo(16); // true
 // powerOfTwo(10); // false
 var powerOfTwo = function(n) {
+
+    if (n === 0) 
+    return false;
+    
+  if (n === 1) 
+    return true;
+    
+  if ((n % 2) === 0) 
+    return (true && powerOfTwo( n / 2));
+    
+  return false;
+
 };
 
 // 9. Write a function that reverses a string.
 var reverse = function(string) {
+
+    if (string.length === 0)
+       return '';
+    else 
+       return string.charAt(string.length-1) + reverse(string.slice(0, string.length-1));
 };
 
 // 10. Write a function that determines if a string is a palindrome.
 var palindrome = function(string) {
+
+
+    if ((string.length === 0) || (string.length === 1)) {
+        return true;
+      }
+      else {
+      
+        //both characters are spaces
+        if ((string.charAt(0) === " ") && (string.charAt(string.length - 1) === " ")) {
+          return palindrome(string.slice(1, string.length-1)) && true;
+        } 
+      
+        //if character at beginning is a space
+        if (string.charAt(string.length - 1) === " ") {
+          return palindrome(string.slice(1, string.length-1)) && true;
+        }
+      
+        //if character at end is a space
+        if (string.charAt(string.length - 1) === " ") {
+          return palindrome(string.slice(1, string.length-1)) && true;
+        }
+      
+        //ignoring no characters
+        return palindrome(string.slice(1, string.length-1)) && (string.charAt(0).toUpperCase() == string.charAt(string.length-1).toUpperCase());
+    }      
+    
 };
 
 // 11. Write a function that returns the remainder of x divided by y without using the
@@ -182,6 +269,57 @@ var countKeysInObj = function(obj, key) {
 // countValuesInObj(obj, 'r') // 2
 // countValuesInObj(obj, 'e') // 1
 var countValuesInObj = function(obj, value) {
+
+    /* self note on why i didnt solve this faster
+    in deleting the first key from the obj, i was permanenly modifying the object
+    what i needed to do was create a copy and recursively call the function with 
+    a copy of the diminishe object.
+    otherwise the deletion will permanetly modify the object
+
+    moreover at some point, obj will no longer be an object and worse
+
+    Object.keys(obj) will force the non object obj into an error condition
+
+    finally.  the detection of whether or not something is an object for purposes of
+    using Object.keys requires accounting for the null condition.
+
+    also see problem 6 where i spent tons of time debugging for the fact that
+    array.push(); returns the new length of the array!!!
+    GG.  I was returning a number instead of an array the entire time?!?
+
+    */
+
+   if ((typeof obj === 'object') & (obj !== null)) {
+
+    var arrayOfKeys = Object.keys(obj);
+
+    if ((arrayOfKeys.length === 0) || (arrayOfKeys===undefined)) {
+        return 0;
+    } else {
+
+        var temp = obj[arrayOfKeys[0]];
+        var newobj = {};
+        Object.assign(newobj, obj);
+        delete newobj[arrayOfKeys[0]];
+
+        if (temp === value) {
+            return countValuesInObj(newobj, value) + 1;
+
+        } else {
+            return countValuesInObj(newobj, value) + countValuesInObj(temp, value);
+
+        }
+    }
+} else {
+    if (obj === value) {
+        return 1;
+    }
+    else {
+        return 0;
+    }
+}
+
+
 };
 
 // 24. Find all keys in an object (and nested objects) by a provided name and rename
